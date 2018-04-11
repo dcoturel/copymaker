@@ -33,15 +33,15 @@ public class CopyMaker {
 	}
 	
 	public String getSql(String table, String filter) {
-		String retorno = "";
-		ArrayList<String> campos = nombreCampos(table);
-		String fieldList = getFieldList(campos);
-		retorno = "INSERT INTO " + table + " SELECT " + fieldList + " FROM " + table + " WHERE " + filter;
-		return(retorno);
+		String returnValue = "";
+		ArrayList<String> fields = fieldNames(table);
+		String fieldList = getFieldList(fields);
+		returnValue = "INSERT INTO " + table + " SELECT " + fieldList + " FROM " + table + " WHERE " + filter;
+		return(returnValue);
 	}
 
 	private String getFieldList(ArrayList<String> campos) {
-		String retorno = "";
+		String returnValue = "";
 		UnaryOperator<String> x = new UnaryOperator<String>() {
 			@Override
 			public String apply(String y) {
@@ -52,29 +52,29 @@ public class CopyMaker {
 		Iterator<String> recorrerCampos = campos.iterator();
 		while (recorrerCampos.hasNext()) {
 			String campo = recorrerCampos.next();
-			retorno = retorno + campo + ",";
+			returnValue = returnValue + campo + ",";
 		}
-		retorno = retorno.substring(0, retorno.length() - 1);
-		return retorno;
+		returnValue = returnValue.substring(0, returnValue.length() - 1);
+		return returnValue;
 	}
 	
 	private String processField(String field) {
-		String retorno = field;
+		String returnValue = field;
 		if (this.values.containsKey(field)) {
 			Object value = this.values.get(field);
 			if (value instanceof String) {
-				retorno = "'" + (String)value + "'";
+				returnValue = "'" + (String)value + "'";
 			} else if (value instanceof Integer) {
-				retorno = String.valueOf(value);
+				returnValue = String.valueOf(value);
 			} else {
-				retorno = (String)value;
+				returnValue = (String)value;
 			}				
 		}		
-		return(retorno);
+		return(returnValue);
 	}
 
-	private ArrayList<String> nombreCampos(String table) {
-		ArrayList<String> retorno = new ArrayList<String>();
+	private ArrayList<String> fieldNames(String table) {
+		ArrayList<String> returnValue = new ArrayList<String>();
 		try {
 			Statement st = connection.createStatement();
 			ResultSet resultSet = st.executeQuery("SELECT top 1 * FROM " + table);
@@ -82,15 +82,15 @@ public class CopyMaker {
 		    int columnCount = metadata.getColumnCount();
 		    for (int i = 1; i <= columnCount; i++) {
 		      String columnName = metadata.getColumnName(i);
-		      retorno.add(columnName);
+		      returnValue.add(columnName);
 		    }
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return retorno;
+		return returnValue;
 	}
 
-	public void resetear() {
+	public void reset() {
 		values.clear();		
 	}
 	
